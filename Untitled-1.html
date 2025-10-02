@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Firebase Login + Database</title>
+</head>
+<body>
+  <h2>Login</h2>
+  <input type="password" id="password" placeholder="Enter Password">
+  <button onclick="login()">Login</button>
+
+  <div id="app" style="display:none;">
+    <h2>Firebase Database Panel</h2>
+    <input type="text" id="dataInput" placeholder="Enter some data">
+    <button onclick="saveData()">Save</button>
+
+    <h3>Saved Data:</h3>
+    <ul id="dataList"></ul>
+  </div>
+
+  <script type="module">
+    // ------------------ Firebase Imports ------------------
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-analytics.js";
+    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+
+    // ------------------ Firebase Config ------------------
+    const firebaseConfig = {
+      apiKey: "AIzaSyCq5q76Wi_XRoHT1rOXyZOE3-R6kzr9OPk",
+      authDomain: "my-login-db-31c1e.firebaseapp.com",
+      databaseURL: "https://my-login-db-31c1e-default-rtdb.firebaseio.com",
+      projectId: "my-login-db-31c1e",
+      storageBucket: "my-login-db-31c1e.firebasestorage.app",
+      messagingSenderId: "952032143681",
+      appId: "1:952032143681:web:5a03e6d009ffe5926d99c0",
+      measurementId: "G-0F4VLGXGZ8"
+    };
+
+    // ------------------ Initialize Firebase ------------------
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const db = getDatabase(app);
+
+    // ------------------ Login Function ------------------
+    window.login = function () {
+      const password = document.getElementById("password").value;
+      if (password === "12345") {
+        document.getElementById("app").style.display = "block";
+      } else {
+        alert("Wrong Password!");
+      }
+    };
+
+    // ------------------ Save Data ------------------
+    window.saveData = function () {
+      const value = document.getElementById("dataInput").value;
+      if (value.trim() !== "") {
+        push(ref(db, "myData"), value);
+        document.getElementById("dataInput").value = "";
+      }
+    };
+
+    // ------------------ Load Data ------------------
+    const dataList = document.getElementById("dataList");
+    onValue(ref(db, "myData"), (snapshot) => {
+      dataList.innerHTML = "";
+      snapshot.forEach((child) => {
+        let li = document.createElement("li");
+        li.textContent = child.val();
+        dataList.appendChild(li);
+      });
+    });
+  </script>
+</body>
+</html>
